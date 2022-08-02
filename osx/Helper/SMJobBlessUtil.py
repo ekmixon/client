@@ -201,7 +201,7 @@ def checkStep1(appPath):
 
     # Check that we have at least one tool.
 
-    if len(toolPathList) == 0:
+    if not toolPathList:
         raise CheckException("no tools found", toolDirPath)
 
     return toolPathList
@@ -211,7 +211,7 @@ def checkStep2(appPath, toolPathList):
 
     # Create a map from the tool name (not path) to its designated requirement.
 
-    toolNameToReqMap = dict()
+    toolNameToReqMap = {}
     for toolPath in toolPathList:
         req = readDesignatedRequirement(toolPath, "tool")
         toolNameToReqMap[os.path.basename(toolPath)] = req
@@ -408,16 +408,18 @@ def main():
     if len(appArgs) == 0:
         raise UsageException()
     command = appArgs[0]
-    if command == "check":
-        if len(appArgs) != 2:
-            raise UsageException()
-        check(appArgs[1])
-    elif command == "setreq":
-        if len(appArgs) < 4:
-            raise UsageException()
-        setreq(appArgs[1], appArgs[2], appArgs[3:])
-    else:
+    if (
+        command == "check"
+        and len(appArgs) != 2
+        or command not in ["check", "setreq"]
+    ):
         raise UsageException()
+    elif command == "check":
+        check(appArgs[1])
+    elif len(appArgs) < 4:
+        raise UsageException()
+    else:
+        setreq(appArgs[1], appArgs[2], appArgs[3:])
 
 if __name__ == "__main__":
     try:

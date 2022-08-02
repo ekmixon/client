@@ -44,9 +44,7 @@ def secure_random(n):
 def start_service(home):
     proc = subprocess.Popen(f"$GOPATH/bin/keybase --home {home} service", stdout=subprocess.PIPE,
                               shell=True, preexec_fn=os.setsid)
-    while True:
-        if os.path.exists(home + "/.config/keybase.devel/keybased.sock"):
-            break
+    while not os.path.exists(f"{home}/.config/keybase.devel/keybased.sock"):
         time.sleep(0.1)
     return proc
 
@@ -100,7 +98,7 @@ if __name__ == '__main__':
     accepted_disclaimer = p.map(create_user_with_disclaimer, range(int(sys.argv[3])))
     print("Creating users with a testnet balance...")
     with_balance = p.map(create_user_with_balance, range(int(sys.argv[4])))
-    print("Done! Writing to %s" % sys.argv[1])
+    print(f"Done! Writing to {sys.argv[1]}")
     with open(sys.argv[1], 'w+') as f:
         f.write(json.dumps({
             'no_disclaimer': no_disclaimer,
